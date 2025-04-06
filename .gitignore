@@ -116,7 +116,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+machine-learning-client/.env
 .venv
 env/
 venv/
