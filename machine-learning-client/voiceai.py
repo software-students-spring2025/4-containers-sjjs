@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
+stop_recording = False
 
 api_key = os.getenv("api_key")  # Make sure this is set in .env
 openai.api_key = api_key
@@ -21,6 +22,8 @@ openai.api_key = api_key
 
 def voice_input():
     """Captures speech input from the microphone until 'end' is spoken + returns transcription."""
+    global stop_recording
+    stop_recording = False
     transcription = ""  # Initialize empty string
     recognizer = sr.Recognizer()
 
@@ -28,6 +31,9 @@ def voice_input():
         print("Speak (say 'end' to stop)...")
         recognizer.adjust_for_ambient_noise(source)
         while True:
+            if stop_recording:
+                print("Recording stopped by frontend.")
+                break
             try:
                 audio = recognizer.listen(source)
                 text = recognizer.recognize_google(audio)

@@ -2,8 +2,11 @@
 File that houses python backend (Flask)
 """
 
-import os
-from flask import Flask, render_template, request, redirect, url_for
+import os, sys
+
+import voiceai
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'machine-learning-client')))
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import pymongo
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
@@ -18,6 +21,7 @@ from flask_login import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo.server_api import ServerApi
 from pymongo.errors import ConnectionFailure, ConfigurationError
+
 
 app = Flask(__name__)
 
@@ -181,6 +185,12 @@ def create_app():
             )
             return render_template("summary.html", docs=docs)
         return render_template("summary.html", docs=[])
+
+    @app.route("/stop-recording", methods=["POST"])
+    def stop_recording():
+        voiceai.stop_recording = True
+        print("Received stop signal from frontend.")
+        return jsonify({"status": "recording stopped"})
 
 
 if __name__ == "__main__":
