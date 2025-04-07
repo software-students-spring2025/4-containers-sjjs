@@ -1,25 +1,29 @@
-import asyncio
-import openai
-from fpdf import FPDF
-import speech_recognition as sr
-from dotenv import load_dotenv
+"""Machine Learning Client for Speech-to-Text and Summarization.
+
+Captures microphone input, transcribes it, summarizes using OpenAI,
+and stores the result in a MongoDB database.
+"""
+
 import os
+import datetime
+import openai
+import speech_recognition as sr
 import aiohttp
+import pymongo
+from dotenv import load_dotenv
+
 
 load_dotenv()
 
-api_key = os.getenv("api_key")  # Replace with your key
+api_key = os.getenv("api_key")  # Make sure this is set in .env
 openai.api_key = api_key
 
 
 def voice_input():
-    def save_transcription(text):
-        with open("transcriberfile.txt", "a", encoding="utf-8") as f:
-            f.write(text + "\n")
-
-    open("transcriberfile.txt", "w").close()
-
+    """Captures speech input from the microphone until 'end' is spoken + returns transcription."""
+    transcription = ""  # Initialize empty string
     recognizer = sr.Recognizer()
+
     with sr.Microphone() as source:
         print("Speak (say 'end' to stop)...")
         recognizer.adjust_for_ambient_noise(source)
@@ -28,7 +32,7 @@ def voice_input():
                 audio = recognizer.listen(source)
                 text = recognizer.recognize_google(audio)
                 print(f"You said: {text}")
-                save_transcription(text)
+                transcription += text + "\n"
                 if text.lower() == "end":
                     print("Terminating recording.")
                     break
@@ -40,13 +44,11 @@ def voice_input():
                 print("Stopped by user.")
                 break
 
-
-def read_text_file(file_path):
-    with open(file_path, "r", encoding="utf-8") as file:
-        return file.read()
+    return transcription
 
 
 async def gpt_call(text, prompt):
+    """Sends a prompt to the OpenAI API with the given text and returns the generated response."""
     async with aiohttp.ClientSession() as session:
         async with session.post(
             "https://api.openai.com/v1/chat/completions",
@@ -60,26 +62,46 @@ async def gpt_call(text, prompt):
             },
         ) as response:
             data = await response.json()
-            return data['choices'][0]['message']['content']
+            return data["choices"][0]["message"]["content"]
 
 
-async def run_all_prompts(file_path):
-    text = read_text_file(file_path)
+async def run_prompt(transcription):
+    """Formats the transcription into a summarization prompt and returns the GPT response."""
     context = (
-        "You are an expert summarizer, please take this given text and summarize it in as much detail as possible. Please include 3-4 key sections as part of this summary. Include the summary and the summary only as part of your outputted text please. : {text}"
+        "You are an expert summarizer. Take this given text and summarize it in as much detail "
+        "as possible. Please include 3–4 key sections in this summary. Include the summary, and "
+        "the summary only, as part of your outputted text. : {text}"
     )
-    out = await gpt_call(text, context)
-    return out
 
-def copy_to_new_file(gpt_output):
-    with open("summarized_file.txt", "w", encoding="utf-8") as file:
-        file.write(gpt_output)
+    return await gpt_call(transcription, context)
 
-if __name__ == "__main__":
-    print("Recording...")
-    voice_input()
 
-    print("Calling OpenAI...")
-    res = asyncio.run(run_all_prompts("transcriberfile.txt"))
-    print("Writing to file..")
-    copy_to_new_file(res)
+def save_to_db(transcription, summary):
+    """Stores the transcription and summary with a timestamp into MongoDB."""
+    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
+    db = connection["speechSummary"]
+    speech_collection = db["speechStorage"]
+
+    doc = {
+        "transcript": transcription,
+        "summary": summary,
+        "timestamp": datetime.datetime.utcnow(),
+    }
+    speech_collection.insert_one(doc)
+
+
+# This main block was for interactive testing:
+# """
+# if __name__ == "__main__":
+#    print("Recording...")
+#    transcription = voice_input()
+#
+#    print("Getting transcription...")
+#    print(transcription)
+#
+#    print("Calling OpenAI...")
+#    summary = asyncio.run(run_prompt(transcription))
+#
+#    print("Getting summary...")
+#    print(summary)
+# """
