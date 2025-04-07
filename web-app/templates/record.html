@@ -248,22 +248,30 @@
             }
         });
         
-        stopRecordingBtn.addEventListener('click', function() {
+        stopRecordingBtn.addEventListener('click', function () {
             // Stop timer
             pauseTimer();
-            
-            // Go to processing step
-            goToStep(3);
-            
-            // Simulate processing time
-            setTimeout(() => {
-                // Go to results step
-                goToStep(4);
-            }, 3000);
-            
-            // In a real app, you would send the recording to be processed
-            // and then poll for the results or use websockets for updates
+        
+            // Send stop signal to backend
+            fetch("/stop-recording", { method: "POST" })
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log("Backend response:", data.status);
+        
+                    // Move to processing UI
+                    goToStep(3);
+        
+                    // Simulate processing delay (replace with actual check later)
+                    setTimeout(() => {
+                        goToStep(4);
+                    }, 3000);
+                })
+                .catch((err) => {
+                    console.error("Failed to stop recording:", err);
+                    alert("Could not communicate with backend.");
+                });
         });
+        
     });
 </script>
 {% endblock %}
