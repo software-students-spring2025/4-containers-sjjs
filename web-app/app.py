@@ -1,29 +1,38 @@
+"""
+    File that houses python backend (Flask)
+"""
+
 import os
-import subprocess
-import datetime
 from flask import Flask, render_template, request, redirect, url_for
-import pymongo 
+import pymongo
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, UserMixin,login_user,login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo.server_api import ServerApi
+from pymongo.errors import ConnectionFailure, ConfigurationError
 
 def create_app():
+    """
+        Create Flask App
+    """
     app = Flask(__name__, static_folder='static')
     app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
-    
+
     # Load environment variables
     load_dotenv()
-    
+
     # Initialize Flask-Login
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'login'
-    
+
     class User(UserMixin):
-        def __init__(self, id, username):
-            self.id = id
+        """
+        User object class for login 
+        """
+        def __init__(self, user_id, username):
+            self.id = user_id
             self.username = username
 
     @login_manager.user_loader
@@ -34,18 +43,18 @@ def create_app():
             if user_data:
                 return User(user_id, user_data["username"])
         return None
-    
-    
+
+
     # MongoDB connection with error handling
     try:
         mongo_uri = os.getenv("MONGO_URI")
         if not mongo_uri:
             raise ValueError("MONGO_URI not found in environment variables")
-            
+
         db_name = os.getenv("MONGO_DBNAME")
         if not db_name:
             raise ValueError("MONGO_DBNAME not found in environment variables")
-            
+
         # Update MongoDB connection to use retry writes and server API
         cxn = pymongo.MongoClient(
             mongo_uri,
@@ -57,23 +66,28 @@ def create_app():
         # Test connection
         cxn.admin.command("ping")
         print(" * Connected to MongoDB Atlas!")
-        
+
         # Create text index for search functionality
-        db.messages.create_index([("workout_description", "text"), ("meal_name", "text")])
-        
-    except Exception as e: 
+        # db.messages.create_index([("workout_description", "text"), ("meal_name", "text")])
+    except (ConnectionFailure, ConfigurationError) as e:
         print(" * MongoDB connection error:", e)
         db = None
-    
+
     # Store db connection in app config
     app.config["db"] = db
-    
+
     @app.route("/")
     @login_required
     def home():
+        """
+        Renders the 'home.html' template and shows a list of .
+        """
         db = app.config["db"]
         if db is not None:
-            pass    
+            query = {"user": current_user.username}
+            docs = db.messages.find(query)
+            return render_template('home.html', docs=docs) 
+        return render_template('home.html', docs=[])
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
@@ -84,11 +98,10 @@ def create_app():
             if db is not None:
                 user_data = db.users.find_one({"username": username})
                 if user_data and check_password_hash(user_data["password"], password):
-                    user = User(id=str(user_data["_id"]), username=username)
+                    user = User(user_id=str(user_data["_id"]), username=username)
                     login_user(user)
                     return redirect(url_for('home'))
-                else:
-                    return render_template('login.html', error="Invalid credentials")
+                return render_template('login.html', error="Invalid credentials")
         return render_template('login.html')
 
     @app.route("/signup", methods=["GET", "POST"])
@@ -104,7 +117,7 @@ def create_app():
                 hashed_password = generate_password_hash(password)
                 db.users.insert_one({"username": username, "password": hashed_password})
                 user_data = db.users.find_one({"username": username})
-                user = User(id=str(user_data["_id"]), username=username)
+                user = User(user_id=str(user_data["_id"]), username=username)
                 login_user(user)
                 return redirect(url_for('onboard'))
         return render_template('signup.html')
@@ -115,31 +128,45 @@ def create_app():
         logout_user()
         return redirect(url_for('login'))
 
-    @app.route("/recordNew") 
+
+    @app.route("/recordNew")
     @login_required
-    def recordNew():
-        pass
+    def record_new():
+        """
+        Renders the 'record.html' template for recording a new workout.
+        """
+        return render_template('record.html')
 
     @app.route("/finishRecord")
     @login_required
-    def finishRecord(): 
+    def finish_record():
         # let api finish uploading
         # wait
         # and the route back home
-        pass 
+        return render_template('home.html')
 
     @app.route("/deleteRecord")
     @login_required
-    def deleteRecord():
+    def delete_record():
         pass
 
     @app.route("/startRecord")
     @login_required
-    def startRecord(): 
+    def start_record():
         pass
 
+    @app.route("/summaryPage")
+    @login_required
+    def summary_page(post_id):
+        """
+        Renders summary page showing the summary of a specific meeting.
+        """
+        db = app.config["db"]
+        if db is not None:
+            docs = db.messages.find_one({"_id": ObjectId(post_id), "user": current_user.username})
+            return render_template('summary.html', docs=docs)
+        return render_template('summary.html', docs=[])
 
 
 if __name__ == "__main__":
-    app = create_app()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    pass
