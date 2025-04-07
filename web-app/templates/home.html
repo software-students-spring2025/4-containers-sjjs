@@ -41,8 +41,12 @@
                     {% if recording.transcript %}
                     <div class="recording-transcript">
                         <h5>Transcript:</h5>
-                        <p class="transcript-preview">{{ recording.transcript[:150] }}{% if recording.transcript|length > 150 %}...{% endif %}</p>
-                        <button class="btn-view-more" data-transcript="{{ recording.transcript }}">View Full Transcript</button>
+                        <p class="transcript-preview">
+                            {{ recording.transcript[:150] }}{% if recording.transcript|length > 150 %}...{% endif %}
+                        </p>
+                        <button class="btn-view-more" data-transcript="{{ recording.transcript }}">
+                            View Full Transcript
+                        </button>
                     </div>
                     {% endif %}
                     
