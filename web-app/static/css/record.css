@@ -9,12 +9,41 @@
     margin-bottom: 2rem;
     color: var(--primary-color);
 }
+/* Recordings Scrollable Container */
+.recordings-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--light-color);
+}
 
-.recording-container {
-    background-color: var(--card-color);
+.recordings-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.recordings-container::-webkit-scrollbar-track {
+    background: var(--light-color);
+}
+
+.recordings-container::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 4px;
+}
+
+.recording-card {
+    flex: 0 0 300px;
+    max-width: 300px;
+    background-color: var(--light-color);
     border-radius: 8px;
     box-shadow: var(--box-shadow);
-    padding: 2rem;
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.recording-card:hover {
+    transform: scale(1.02);
 }
 
 /* Step Styles */
