@@ -117,6 +117,7 @@ celerybeat.pid
 
 # Environments
 machine-learning-client/.env
+.env
 .venv
 env/
 venv/

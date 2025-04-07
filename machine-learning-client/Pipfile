@@ -6,6 +6,11 @@ name = "pypi"
 [packages]
 pylint = "*"
 black = "*"
+openai = "*"
+fpdf = "*"
+speechrecognition = "*"
+python-dotenv = "*"
+aiohttp = "*"
 
 [dev-packages]
 
