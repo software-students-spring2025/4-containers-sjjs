@@ -12,6 +12,39 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo.server_api import ServerApi
 from pymongo.errors import ConnectionFailure, ConfigurationError
 
+def connect_mongodb():
+    """
+        Connect to the mongodb atlas database
+    """
+    # MongoDB connection with error handling
+    try:
+        mongo_uri = os.getenv("MONGO_URI")
+        if not mongo_uri:
+            raise ValueError("MONGO_URI not found in environment variables")
+
+        db_name = os.getenv("MONGO_DBNAME")
+        if not db_name:
+            raise ValueError("MONGO_DBNAME not found in environment variables")
+
+        # Update MongoDB connection to use retry writes and server API
+        cxn = pymongo.MongoClient(
+            mongo_uri,
+            server_api=ServerApi('1'),
+            retryWrites=True,
+            w='majority'
+        )
+        db = cxn[db_name]
+        # Test connection
+        cxn.admin.command("ping")
+        print(" * Connected to MongoDB Atlas!")
+
+        # Create text index for search functionality
+        # db.messages.create_index([("workout_description", "text"), ("meal_name", "text")])
+    except (ConnectionFailure, ConfigurationError) as e:
+        print(" * MongoDB connection error:", e)
+        db = None
+    return db
+
 def create_app():
     """
         Create Flask App
@@ -45,33 +78,7 @@ def create_app():
         return None
 
 
-    # MongoDB connection with error handling
-    try:
-        mongo_uri = os.getenv("MONGO_URI")
-        if not mongo_uri:
-            raise ValueError("MONGO_URI not found in environment variables")
-
-        db_name = os.getenv("MONGO_DBNAME")
-        if not db_name:
-            raise ValueError("MONGO_DBNAME not found in environment variables")
-
-        # Update MongoDB connection to use retry writes and server API
-        cxn = pymongo.MongoClient(
-            mongo_uri,
-            server_api=ServerApi('1'),
-            retryWrites=True,
-            w='majority'
-        )
-        db = cxn[db_name]
-        # Test connection
-        cxn.admin.command("ping")
-        print(" * Connected to MongoDB Atlas!")
-
-        # Create text index for search functionality
-        # db.messages.create_index([("workout_description", "text"), ("meal_name", "text")])
-    except (ConnectionFailure, ConfigurationError) as e:
-        print(" * MongoDB connection error:", e)
-        db = None
+    db = connect_mongodb()
 
     # Store db connection in app config
     app.config["db"] = db
@@ -86,7 +93,7 @@ def create_app():
         if db is not None:
             query = {"user": current_user.username}
             docs = db.messages.find(query)
-            return render_template('home.html', docs=docs) 
+            return render_template('home.html', docs=docs)
         return render_template('home.html', docs=[])
 
     @app.route("/login", methods=["GET", "POST"])
