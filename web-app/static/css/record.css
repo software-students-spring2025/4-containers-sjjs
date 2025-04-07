@@ -1,4 +1,13 @@
 /* Recording Page Specific Styles */
+:root {
+    --step-active-color: #4a6ee0;
+    --step-inactive-color: #e0e5f2;
+    --step-number-size: 40px;
+    --recording-red: #dc3545;
+    --processing-yellow: #ffc107;
+    --success-green: #28a745;
+}
+
 .record-page {
     max-width: 800px;
     margin: 0 auto;
@@ -8,150 +17,330 @@
     text-align: center;
     margin-bottom: 2rem;
     color: var(--primary-color);
-}
-/* Recordings Scrollable Container */
-.recordings-container {
-    display: flex;
-    overflow-x: auto;
-    gap: 1.5rem;
+    font-size: 2.2rem;
+    position: relative;
     padding-bottom: 1rem;
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-color) var(--light-color);
 }
 
-.recordings-container::-webkit-scrollbar {
-    height: 8px;
+.record-page h2:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: var(--primary-color);
+    border-radius: 2px;
 }
 
-.recordings-container::-webkit-scrollbar-track {
-    background: var(--light-color);
+.recording-container {
+    background-color: var(--card-color);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    padding: 0;
+    overflow: hidden;
 }
 
-.recordings-container::-webkit-scrollbar-thumb {
-    background-color: var(--primary-color);
-    border-radius: 4px;
+/* Step Navigation */
+.steps-nav {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f8f9fa;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #eee;
 }
 
-.recording-card {
-    flex: 0 0 300px;
-    max-width: 300px;
-    background-color: var(--light-color);
-    border-radius: 8px;
-    box-shadow: var(--box-shadow);
-    padding: 1.5rem;
-    transition: transform 0.3s ease;
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 25%;
 }
 
-.recording-card:hover {
-    transform: scale(1.02);
+.step-indicator:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: calc(var(--step-number-size) / 2);
+    right: calc(-50% + var(--step-number-size) / 2);
+    width: 100%;
+    height: 2px;
+    background-color: var(--step-inactive-color);
+    z-index: 1;
 }
 
-/* Step Styles */
+.step-indicator.active:not(:last-child)::after,
+.step-indicator.completed:not(:last-child)::after {
+    background-color: var(--step-active-color);
+}
+
+.step-number {
+    width: var(--step-number-size);
+    height: var(--step-number-size);
+    border-radius: 50%;
+    background-color: var(--step-inactive-color);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.step-indicator.active .step-number,
+.step-indicator.completed .step-number {
+    background-color: var(--step-active-color);
+}
+
+.step-indicator.completed .step-number {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.step-indicator.completed .step-number::after {
+    content: "✓";
+    font-size: 1.2rem;
+}
+
+.step-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.step-indicator.active .step-label {
+    color: var(--step-active-color);
+    font-weight: 600;
+}
+
+/* Step Content */
 .step {
     display: none;
-    padding: 1.5rem 0;
+    padding: 2rem;
 }
 
 .step.active {
     display: block;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .step h3 {
     margin-bottom: 1.5rem;
     color: var(--dark-color);
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.8rem;
+    font-size: 1.4rem;
 }
 
-/* Recording Indicator */
+/* Step 1: Setup */
+#recording-setup-form {
+    background-color: #f8faff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#recording-setup-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+#recording-setup-form label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+#recording-setup-form input {
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.75rem;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+#recording-setup-form input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 110, 224, 0.15);
+}
+
+#recording-setup-form button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#recording-setup-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Step 2: Recording */
 .record-status {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 2rem;
+    background-color: rgba(220, 53, 69, 0.05);
+    padding: 1.5rem;
+    border-radius: 10px;
 }
 
 .record-indicator {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 1rem;
+    position: relative;
 }
 
 .record-pulse {
-    width: 60px;
-    height: 60px;
-    background-color: var(--danger-color);
+    width: 70px;
+    height: 70px;
+    background-color: var(--recording-red);
     border-radius: 50%;
     position: relative;
     animation: pulse 1.5s ease-in-out infinite;
 }
 
+.record-pulse::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid var(--recording-red);
+    animation: sonar 1.5s ease-in-out infinite;
+}
+
 @keyframes pulse {
-    0% {
-        transform: scale(0.8);
-        opacity: 0.7;
-    }
-    50% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(0.8);
-        opacity: 0.7;
-    }
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+@keyframes sonar {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
 }
 
 .record-status p {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: 500;
+    color: var(--recording-red);
+    display: flex;
+    align-items: center;
 }
 
-/* Live Transcript */
+#recording-time {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    margin-left: 0.5rem;
+    font-family: monospace;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .live-transcript {
     margin-bottom: 2rem;
 }
 
 .live-transcript h4 {
-    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    color: var(--dark-color);
 }
 
 #transcript-container {
-    background-color: var(--light-color);
-    border-radius: 4px;
-    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
     height: 200px;
     overflow-y: auto;
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
 #transcript-text {
     white-space: pre-wrap;
     line-height: 1.6;
+    color: #333;
 }
 
-/* Recording Controls */
+.interim-text {
+    color: #999;
+    font-style: italic;
+}
+
+.placeholder-cursor::after {
+    content: "|";
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 .recording-controls {
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
-/* Processing Loader */
+.recording-controls button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+    transition: all 0.2s;
+}
+
+.recording-controls button i {
+    margin-right: 0.5rem;
+}
+
+.recording-controls button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Step 3: Processing */
 .processing-status {
     text-align: center;
-    padding: 2rem 0;
+    padding: 3rem 0;
+    background-color: rgba(255, 193, 7, 0.05);
+    border-radius: 10px;
+    margin: 1rem 0;
 }
 
 .loader {
-    width: 50px;
-    height: 50px;
-    border: 5px solid var(--light-color);
-    border-top: 5px solid var(--primary-color);
+    width: 70px;
+    height: 70px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--processing-yellow);
     border-radius: 50%;
-    margin: 0 auto 1.5rem;
-    animation: spin 2s linear infinite;
+    margin: 0 auto 2rem;
+    animation: spin 1.5s linear infinite;
 }
 
 @keyframes spin {
@@ -159,33 +348,59 @@
     100% { transform: rotate(360deg); }
 }
 
-.processing-info {
-    margin-top: 1rem;
-    color: var(--secondary-color);
-    font-size: 0.9rem;
+.processing-status p {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: #856404;
+    margin-bottom: 0.5rem;
 }
 
-/* Results Section */
+.processing-info {
+    color: #6c757d;
+    font-size: 1rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Step 4: Results */
 .results-container {
     margin-bottom: 2rem;
 }
 
 .summary-section, .transcript-section {
     margin-bottom: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.summary-section {
+    background-color: rgba(40, 167, 69, 0.05);
+    border-left: 4px solid var(--success-green);
 }
 
 .summary-section h4, .transcript-section h4 {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--dark-color);
+    font-weight: 600;
+    font-size: 1.1rem;
 }
 
 .result-box {
-    background-color: var(--light-color);
-    border-radius: 4px;
-    padding: 1rem;
-    max-height: 200px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    max-height: none;
     overflow-y: auto;
+    border: 1px solid #e9ecef;
     white-space: pre-wrap;
     line-height: 1.6;
+}
+
+.summary-section .result-box {
+    max-height: 200px;
+    color: #155724;
 }
 
 .transcript-section .result-box {
@@ -196,11 +411,54 @@
 .finish-buttons {
     display: flex;
     justify-content: space-between;
-    margin-top: 2rem;
+    margin-top: 2.5rem;
+}
+
+.finish-buttons a {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+}
+
+.finish-buttons a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.finish-buttons a:active {
+    transform: translateY(0);
+}
+
+.finish-buttons .btn-primary {
+    box-shadow: 0 2px 5px rgba(74, 110, 224, 0.2);
+}
+
+.finish-buttons .btn-primary:hover {
+    box-shadow: 0 5px 10px rgba(74, 110, 224, 0.3);
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
+    .step {
+        padding: 1.5rem;
+    }
+    
+    .steps-nav {
+        padding: 0.75rem;
+    }
+    
+    .step-number {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+    
+    .step-label {
+        font-size: 0.7rem;
+    }
+    
     .recording-controls {
         flex-direction: column;
     }
@@ -212,11 +470,11 @@
     
     .finish-buttons {
         flex-direction: column;
+        gap: 1rem;
     }
     
     .finish-buttons a {
         width: 100%;
-        margin-bottom: 0.5rem;
         text-align: center;
     }
 }
