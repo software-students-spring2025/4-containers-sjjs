@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Record - Speech Summary App{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/record.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="record-page">
+    <h2>Record Your Speech</h2>
+    
+    <div class="recording-container">
+        <div id="step-1" class="step active">
+            <h3>Step 1: Set Up Recording</h3>
+            <form id="recording-setup-form">
+                <div class="form-group">
+                    <label for="recording-title">Recording Title:</label>
+                    <input type="text" id="recording-title" name="title" placeholder="Enter a title for your recording" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Start Recording</button>
+            </form>
+        </div>
+        
+        <div id="step-2" class="step">
+            <h3>Step 2: Recording in Progress</h3>
+            <div class="record-status">
+                <div class="record-indicator">
+                    <div class="record-pulse"></div>
+                </div>
+                <p>Recording... <span id="recording-time">00:00</span></p>
+            </div>
+            
+            <div class="live-transcript">
+                <h4>Live Transcript:</h4>
+                <div id="transcript-container">
+                    <p id="transcript-text"></p>
+                </div>
+            </div>
+            
+            <div class="recording-controls">
+                <button id="pause-resume-btn" class="btn btn-secondary">
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button id="stop-recording-btn" class="btn btn-danger">
+                    <i class="fas fa-stop"></i> Stop Recording
+                </button>
+            </div>
+        </div>
+        
+        <div id="step-3" class="step">
+            <h3>Step 3: Processing</h3>
+            <div class="processing-status">
+                <div class="loader"></div>
+                <p>Processing your recording...</p>
+                <p class="processing-info">This may take a few moments while we analyze and summarize your speech.</p>
+            </div>
+        </div>
+        
+        <div id="step-4" class="step">
+            <h3>Step 4: Results</h3>
+            <div class="results-container">
+                <div class="summary-section">
+                    <h4>Summary:</h4>
+                    <div id="summary-text" class="result-box"></div>
+                </div>
+                
+                <div class="transcript-section">
+                    <h4>Full Transcript:</h4>
+                    <div id="full-transcript-text" class="result-box"></div>
+                </div>
+            </div>
+            
+            <div class="finish-buttons">
+                <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+                <a href="{{ url_for('startRecord') }}" class="btn btn-primary">Record Another</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/record.js') }}"></script>
+{% endblock %}

@@ -73,7 +73,10 @@ def create_app():
     def home():
         db = app.config["db"]
         if db is not None:
-            pass    
+            # Fetch user's recordings from the database
+            recordings = list(db.recordings.find({"user_id": current_user.id}).sort("created_at", -1))
+            return render_template('home.html', recordings=recordings, username=current_user.username)
+        return render_template('home.html', recordings=[], username=current_user.username, error="Database connection error")    
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
@@ -137,9 +140,17 @@ def create_app():
     @login_required
     def startRecord(): 
         pass
+    
+    @app.route("/onboard")
+    @login_required
+    def onboard():
+        """Simple onboarding page for new users"""
+        return render_template('onboard.html')
+    
+    return app
 
 
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

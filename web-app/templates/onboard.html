@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Speech Summary App{% endblock %}
+
+{% block content %}
+<div class="onboard-container">
+    <div class="welcome-card">
+        <h2>Welcome to Speech Summary!</h2>
+        <p class="welcome-message">
+            Thank you for joining our platform. Let's get you started with creating your first recording.
+        </p>
+        
+        <div class="onboard-steps">
+            <div class="step-card">
+                <div class="step-icon">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <h3>Record</h3>
+                <p>Simply click record and start speaking. Our system will capture your voice in real-time.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3>Process</h3>
+                <p>Our AI will transcribe your speech and analyze the content automatically.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Summarize</h3>
+                <p>Get a concise, accurate summary of your speech that captures the key points.</p>
+            </div>
+        </div>
+        
+        <div class="onboard-actions">
+            <a href="{{ url_for('startRecord') }}" class="btn btn-primary">Create Your First Recording</a>
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Go to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
