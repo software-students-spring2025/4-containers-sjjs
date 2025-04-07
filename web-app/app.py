@@ -19,6 +19,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo.server_api import ServerApi
 from pymongo.errors import ConnectionFailure, ConfigurationError
 
+app = Flask(__name__)
 
 def connect_mongodb():
     """
@@ -183,4 +184,4 @@ def create_app():
 
 
 if __name__ == "__main__":
-    pass
+    app.run(debug=True)
