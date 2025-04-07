@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  # MongoDB database
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+
+  # Machine Learning Client (assumes it's in a separate directory)
+  ml-client:
+    build: ../machine-learning-client
+    container_name: ml-client
+    depends_on:
+      - mongodb
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+  # Web App
+  web-app:
+    build: .
+    container_name: web-app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - ml-client
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
