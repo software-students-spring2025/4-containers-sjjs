@@ -1,27 +1,48 @@
-name: Speech Build
+name: Project CI Pipeline
+
 on:
   push:
     branches:
       - main
   pull_request:
+
 jobs:
-  build:
+  build-and-test: 
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+
     strategy:
       matrix:
-        python-version: ["3.9", "3.11"]
+        subdir: [web-app, machine-learning-client]
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.subdir }}
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Python, pipenv and Pipfile packages
-        uses: kojoru/prepare-pipenv@v1
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Turn on 'editable' mode
+          python-version: "3.10"
+
+      - name: Install pipenv
         run: |
-          pipenv install -e .
-      - name: Test with pytest
+          pip install pipenv
+
+      - name: Install dependencies
         run: |
-          pipenv install pytest
-          pipenv --venv
-          pipenv run python -m pytest
+          pipenv sync --dev
+
+      - name: Run tests with Pytest
+        run: pipenv run pytest --cov=. --cov-report=term-missing
+      
+      - name: Enforce 80% test coverage
+        run: |
+          COVERAGE=$(pipenv run coverage report | grep TOTAL | awk '{print $4}' | sed 's/%//')
+          echo "Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Test coverage is below 80%" >&2
+            exit 1
+          fi
