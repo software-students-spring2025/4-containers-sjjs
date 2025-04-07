@@ -58,6 +58,14 @@
                 </div>
                 {% endfor %}
             </div>
+            <div class="recordings-navigation">
+                <button class="scroll-btn scroll-left" aria-label="Scroll left">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="scroll-btn scroll-right" aria-label="Scroll right">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         {% else %}
             <div class="no-recordings">
                 <p>You don't have any recordings yet.</p>
@@ -102,6 +110,29 @@
                 modal.style.display = "none";
             }
         });
+        
+        // Horizontal scrolling navigation
+        const scrollLeftBtn = document.querySelector(".scroll-left");
+        const scrollRightBtn = document.querySelector(".scroll-right");
+        const recordingsContainer = document.querySelector(".recordings-container");
+        
+        if (scrollLeftBtn && scrollRightBtn && recordingsContainer) {
+            const scrollAmount = 400; // Amount to scroll on each click
+            
+            scrollLeftBtn.addEventListener("click", function() {
+                recordingsContainer.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+            
+            scrollRightBtn.addEventListener("click", function() {
+                recordingsContainer.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+        }
     });
 </script>
 {% endblock %}

@@ -11,30 +11,57 @@
     <h2>Record Your Speech</h2>
     
     <div class="recording-container">
+        <!-- Step Navigation -->
+        <div class="steps-nav">
+            <div class="step-indicator active" id="step-indicator-1">
+                <div class="step-number">1</div>
+                <div class="step-label">Setup</div>
+            </div>
+            <div class="step-indicator" id="step-indicator-2">
+                <div class="step-number">2</div>
+                <div class="step-label">Record</div>
+            </div>
+            <div class="step-indicator" id="step-indicator-3">
+                <div class="step-number">3</div>
+                <div class="step-label">Process</div>
+            </div>
+            <div class="step-indicator" id="step-indicator-4">
+                <div class="step-number">4</div>
+                <div class="step-label">Results</div>
+            </div>
+        </div>
+        
+        <!-- Step 1: Setup -->
         <div id="step-1" class="step active">
-            <h3>Step 1: Set Up Recording</h3>
+            <h3>Set Up Your Recording</h3>
             <form id="recording-setup-form">
                 <div class="form-group">
                     <label for="recording-title">Recording Title:</label>
-                    <input type="text" id="recording-title" name="title" placeholder="Enter a title for your recording" required>
+                    <input type="text" id="recording-title" name="title" placeholder="Enter a descriptive title for your recording" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Start Recording</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-microphone"></i> Start Recording
+                </button>
             </form>
         </div>
         
+        <!-- Step 2: Recording in Progress -->
         <div id="step-2" class="step">
-            <h3>Step 2: Recording in Progress</h3>
+            <h3>Recording in Progress</h3>
             <div class="record-status">
                 <div class="record-indicator">
                     <div class="record-pulse"></div>
                 </div>
-                <p>Recording... <span id="recording-time">00:00</span></p>
+                <p><i class="fas fa-circle"></i> Recording... <span id="recording-time">00:00</span></p>
             </div>
             
             <div class="live-transcript">
-                <h4>Live Transcript:</h4>
+                <h4><i class="fas fa-file-alt"></i> Live Transcript:</h4>
                 <div id="transcript-container">
-                    <p id="transcript-text"></p>
+                    <p id="transcript-text">
+                        <span>Thank you for joining today's meeting. As we discussed last week, our main goal is to finalize the project timeline and assign responsibilities to team members.</span>
+                        <span class="interim-text placeholder-cursor"> We should first address the requirements from the client...</span>
+                    </p>
                 </div>
             </div>
             
@@ -48,32 +75,46 @@
             </div>
         </div>
         
+        <!-- Step 3: Processing -->
         <div id="step-3" class="step">
-            <h3>Step 3: Processing</h3>
+            <h3>Processing Your Recording</h3>
             <div class="processing-status">
                 <div class="loader"></div>
-                <p>Processing your recording...</p>
-                <p class="processing-info">This may take a few moments while we analyze and summarize your speech.</p>
+                <p>Analyzing speech patterns...</p>
+                <p class="processing-info">Our AI is processing your recording to create an accurate transcript and generate a concise summary of the key points.</p>
             </div>
         </div>
         
+        <!-- Step 4: Results -->
         <div id="step-4" class="step">
-            <h3>Step 4: Results</h3>
+            <h3>Recording Results</h3>
             <div class="results-container">
                 <div class="summary-section">
-                    <h4>Summary:</h4>
-                    <div id="summary-text" class="result-box"></div>
+                    <h4><i class="fas fa-clipboard-check"></i> Summary:</h4>
+                    <div id="summary-text" class="result-box">
+                        Meeting focused on finalizing project timeline and assigning team responsibilities. Client requirements were discussed, with emphasis on delivery dates and quality standards. Team agreed on weekly progress reports and established a communication protocol for urgent matters.
+                    </div>
                 </div>
                 
                 <div class="transcript-section">
-                    <h4>Full Transcript:</h4>
-                    <div id="full-transcript-text" class="result-box"></div>
+                    <h4><i class="fas fa-file-alt"></i> Full Transcript:</h4>
+                    <div id="full-transcript-text" class="result-box">
+                        Thank you for joining today's meeting. As we discussed last week, our main goal is to finalize the project timeline and assign responsibilities to team members. We should first address the requirements from the client regarding delivery dates and quality standards.
+                        
+                        John will be responsible for the front-end development, focusing on user experience and responsive design. Sarah will handle the back-end architecture and database optimization. I'll coordinate with the client and manage overall project progress.
+                        
+                        We agreed to have weekly progress reports every Friday, and established a communication protocol for urgent matters that require immediate attention. Any questions or concerns about the assigned tasks?
+                    </div>
                 </div>
             </div>
             
             <div class="finish-buttons">
-                <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
-                <a href="{{ url_for('startRecord') }}" class="btn btn-primary">Record Another</a>
+                <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Back to Dashboard
+                </a>
+                <a href="{{ url_for('startRecord') }}" class="btn btn-primary">
+                    <i class="fas fa-microphone"></i> Record Another
+                </a>
             </div>
         </div>
     </div>
@@ -81,5 +122,148 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/record.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elements
+        const steps = document.querySelectorAll('.step');
+        const stepIndicators = document.querySelectorAll('.step-indicator');
+        const recordingSetupForm = document.getElementById('recording-setup-form');
+        const pauseResumeBtn = document.getElementById('pause-resume-btn');
+        const stopRecordingBtn = document.getElementById('stop-recording-btn');
+        const recordingTime = document.getElementById('recording-time');
+        const transcriptText = document.getElementById('transcript-text');
+        
+        // Simulated placeholder transcripts (would be replaced by real ML client)
+        const placeholderTranscripts = [
+            "Thank you for joining today's meeting. As we discussed last week, our main goal is to finalize the project timeline and assign responsibilities to team members.",
+            "We should first address the requirements from the client regarding delivery dates and quality standards.",
+            "John will be responsible for the front-end development, focusing on user experience and responsive design.",
+            "Sarah will handle the back-end architecture and database optimization. I'll coordinate with the client and manage overall project progress.",
+            "We agreed to have weekly progress reports every Friday, and established a communication protocol for urgent matters that require immediate attention.",
+            "Any questions or concerns about the assigned tasks?"
+        ];
+        
+        let currentTranscriptIndex = 0;
+        let timer;
+        let seconds = 0;
+        let minutes = 0;
+        let isPaused = false;
+        let recordingId = null;
+        
+        // Functions
+        function goToStep(stepNumber) {
+            // Hide all steps and update indicators
+            steps.forEach((step, index) => {
+                step.classList.remove('active');
+                stepIndicators[index].classList.remove('active', 'completed');
+            });
+            
+            // Show the current step
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+            
+            // Update step indicators
+            for (let i = 0; i < stepNumber; i++) {
+                stepIndicators[i].classList.add('completed');
+            }
+            stepIndicators[stepNumber - 1].classList.add('active');
+        }
+        
+        function updateTimer() {
+            seconds++;
+            if (seconds >= 60) {
+                seconds = 0;
+                minutes++;
+            }
+            
+            recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function startTimer() {
+            timer = setInterval(updateTimer, 1000);
+        }
+        
+        function pauseTimer() {
+            clearInterval(timer);
+        }
+        
+        function updateTranscript() {
+            // Simulate receiving transcript chunks from ML client
+            if (currentTranscriptIndex < placeholderTranscripts.length) {
+                let fullText = "";
+                for (let i = 0; i <= currentTranscriptIndex; i++) {
+                    fullText += placeholderTranscripts[i] + " ";
+                }
+                
+                // Add interim text with animated cursor
+                if (currentTranscriptIndex < placeholderTranscripts.length - 1) {
+                    transcriptText.innerHTML = `<span>${fullText}</span><span class="interim-text placeholder-cursor"> ${placeholderTranscripts[currentTranscriptIndex + 1].substring(0, 10)}...</span>`;
+                } else {
+                    transcriptText.innerHTML = `<span>${fullText}</span>`;
+                }
+                
+                currentTranscriptIndex++;
+                
+                // Scroll transcript container to bottom
+                const container = document.getElementById('transcript-container');
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+        
+        // Event Listeners
+        recordingSetupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('recording-title').value;
+            if (!title) {
+                alert('Please enter a title for your recording');
+                return;
+            }
+            
+            // In a real app, you would create a recording in the database
+            // and get back a recording ID
+            recordingId = "placeholder-id-" + Date.now();
+            
+            // Go to recording step
+            goToStep(2);
+            
+            // Start timer and transcript updates
+            startTimer();
+            updateTranscript();
+            
+            // Simulate receiving more transcript chunks
+            setInterval(updateTranscript, 5000);
+        });
+        
+        pauseResumeBtn.addEventListener('click', function() {
+            if (isPaused) {
+                // Resume recording
+                pauseResumeBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                startTimer();
+                isPaused = false;
+            } else {
+                // Pause recording
+                pauseResumeBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+                pauseTimer();
+                isPaused = true;
+            }
+        });
+        
+        stopRecordingBtn.addEventListener('click', function() {
+            // Stop timer
+            pauseTimer();
+            
+            // Go to processing step
+            goToStep(3);
+            
+            // Simulate processing time
+            setTimeout(() => {
+                // Go to results step
+                goToStep(4);
+            }, 3000);
+            
+            // In a real app, you would send the recording to be processed
+            // and then poll for the results or use websockets for updates
+        });
+    });
+</script>
 {% endblock %}
