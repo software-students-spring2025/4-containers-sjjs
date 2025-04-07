@@ -2,13 +2,6 @@ import asyncio
 import openai
 from fpdf import FPDF
 import speech_recognition as sr
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_LEFT, TA_CENTER
-from reportlab.lib.units import inch
-from pdf2image import convert_from_path
 from dotenv import load_dotenv
 import os
 import aiohttp
