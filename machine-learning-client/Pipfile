@@ -12,6 +12,7 @@ speechrecognition = "*"
 python-dotenv = "*"
 aiohttp = "*"
 pytest = "*"
+asyncio = "*"
 
 [dev-packages]
 
