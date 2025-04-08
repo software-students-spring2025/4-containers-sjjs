@@ -146,7 +146,7 @@ def create_app():
 
     @app.route("/recordNew")
     @login_required
-    def record_new():
+    def recordNew():
         """
         Renders the 'record.html' template for recording a new workout.
         """
@@ -154,7 +154,7 @@ def create_app():
 
     @app.route("/finishRecord")
     @login_required
-    def finish_record():
+    def finishRecord():
         # let api finish uploading
         # wait
         # and the route back home
@@ -162,12 +162,12 @@ def create_app():
 
     @app.route("/deleteRecord")
     @login_required
-    def delete_record():
+    def deleteRecord():
         pass
 
     @app.route("/startRecord", methods=["POST"])
     @login_required
-    def start_record():
+    def startRecord():
         title = request.form.get('recording-title')
         doc = voiceai.start_recording()
         doc["title"] = title
@@ -197,6 +197,8 @@ def create_app():
         print("Received stop signal from frontend.")
         return jsonify({"status": "recording stopped"})
 
+    return app
 
 if __name__ == "__main__":
+    app = create_app()
     app.run(debug=True)
