@@ -12,8 +12,10 @@ speechrecognition = "*"
 python-dotenv = "*"
 aiohttp = "*"
 pytest = "*"
+asyncio = "*"
 
 [dev-packages]
+pytest-cov = "*"
 
 [requires]
 python_version = "3.10"

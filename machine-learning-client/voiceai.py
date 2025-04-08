@@ -10,6 +10,7 @@ import openai
 import speech_recognition as sr
 import aiohttp
 import pymongo
+import asyncio
 from dotenv import load_dotenv
 
 
@@ -21,7 +22,7 @@ openai.api_key = api_key
 
 
 def voice_input():
-    """Captures speech input from the microphone until 'end' is spoken + returns transcription."""
+    """Captures speech input from the microphone until 'end' + returns transcription."""
     global stop_recording
     stop_recording = False
     transcription = ""  # Initialize empty string
@@ -39,9 +40,6 @@ def voice_input():
                 text = recognizer.recognize_google(audio)
                 print(f"You said: {text}")
                 transcription += text + "\n"
-                if text.lower() == "end":
-                    print("Terminating recording.")
-                    break
             except sr.UnknownValueError:
                 print("Could not understand.")
             except sr.RequestError as e:
@@ -82,19 +80,24 @@ async def run_prompt(transcription):
     return await gpt_call(transcription, context)
 
 
-def save_to_db(transcription, summary):
-    """Stores the transcription and summary with a timestamp into MongoDB."""
-    connection = pymongo.MongoClient(os.getenv("MONGO_URI"))
-    db = connection["speechSummary"]
-    speech_collection = db["speechStorage"]
+#def save_to_db(transcription, summary):
+ #   doc = {
+  #      "transcript": transcription,
+   #     "summary": summary,
+    #    "timestamp": datetime.datetime.utcnow(),
+    #}
+    #return doc
 
+
+def start_recording(): 
+    transcription = voice_input()
+    summary = asyncio.run(run_prompt(transcription))
     doc = {
         "transcript": transcription,
         "summary": summary,
         "timestamp": datetime.datetime.utcnow(),
     }
-    speech_collection.insert_one(doc)
-
+    return doc
 
 # This main block was for interactive testing:
 # """

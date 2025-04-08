@@ -2,11 +2,8 @@
 File that houses python backend (Flask)
 """
 
-import os, sys
-
+import os
 import voiceai
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'machine-learning-client')))
-from flask import Flask, render_template, request, redirect, url_for, jsonify
 import pymongo
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
@@ -18,10 +15,10 @@ from flask_login import (
     logout_user,
     current_user,
 )
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo.server_api import ServerApi
 from pymongo.errors import ConnectionFailure, ConfigurationError
-
 
 app = Flask(__name__)
 
@@ -62,6 +59,7 @@ def create_app():
     """
     app = Flask(__name__, static_folder="static")
     app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
+    title = ""
 
     # Load environment variables
     load_dotenv()
@@ -167,10 +165,17 @@ def create_app():
     def delete_record():
         pass
 
-    @app.route("/startRecord")
+    @app.route("/startRecord", methods=["POST"])
     @login_required
     def start_record():
-        pass
+        title = request.form.get('recording-title')
+        doc = voiceai.start_recording()
+        doc["title"] = title
+        doc["user"] = current_user.username
+        db = app.config["db"]
+        if db is not None:
+            db.speechSummary.insert_one(doc)
+        return '', 204
 
     @app.route("/summaryPage")
     @login_required
