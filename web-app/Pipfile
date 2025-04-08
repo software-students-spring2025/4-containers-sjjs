@@ -11,6 +11,7 @@ pymongo = "*"
 python-dotenv = "*"
 flask-login = "*"
 pytest = "*"
+pytest-flask = "*"
 
 [dev-packages]
 pytest-cov = "*"
