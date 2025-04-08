@@ -15,7 +15,7 @@ from flask_login import (
     logout_user,
     current_user,
 )
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo.server_api import ServerApi
 from pymongo.errors import ConnectionFailure, ConfigurationError
@@ -160,10 +160,31 @@ def create_app():
         # and the route back home
         return render_template("home.html")
 
-    @app.route("/deleteRecord")
+    @app.route("/deleteRecord/<recording_id>")
     @login_required
-    def deleteRecord():
-        pass
+    def deleteRecord(recording_id):
+        """Delete a recording"""
+        db = app.config["db"]
+        if db is not None:
+            try:
+                # Convert the recording_id to ObjectId
+                result = db.speechSummary.delete_one({
+                    "_id": ObjectId(recording_id), 
+                    "user": current_user.username
+                })
+            
+                if result.deleted_count == 1:
+                    # Successfully deleted
+                    flash("Recording deleted successfully.", "success")
+                else:
+                    # No matching recording found
+                    flash("Recording not found or you don't have permission to delete it.", "error")
+            except Exception as e:
+                # Handle any potential errors (e.g., invalid ObjectId)
+                flash(f"An error occurred: {str(e)}", "error")
+    
+        # Redirect back to home page
+        return redirect(url_for("home"))
 
     @app.route("/startRecord", methods=["POST"])
     @login_required
