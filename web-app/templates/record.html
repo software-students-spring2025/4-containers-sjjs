@@ -34,7 +34,7 @@
         <!-- Step 1: Setup -->
         <div id="step-1" class="step active">
             <h3>Set Up Your Recording</h3>
-            <form id="recording-setup-form">
+            <form id="recording-setup-form" method="POST" action="{{url_for('startRecord')}}">
                 <div class="form-group">
                     <label for="recording-title">Recording Title:</label>
                     <input type="text" id="recording-title" name="title" placeholder="Enter a descriptive title for your recording" required>
