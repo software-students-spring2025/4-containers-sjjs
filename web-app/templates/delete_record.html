@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Recording - Speech Summary App{% endblock %}
+
+{% block content %}
+<div class="delete-record-page">
+    <div class="delete-confirmation-container">
+        <h2>Delete Recording</h2>
+        
+        {% if recording %}
+            <div class="recording-details">
+                <h3>{{ recording.title }}</h3>
+                <p>Recorded on: {{ recording.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            </div>
+        {% endif %}
+        
+        <div class="delete-warning">
+            <p><strong>Are you sure you want to delete this recording?</strong></p>
+            <p>This action cannot be undone.</p>
+        </div>
+        
+        <div class="delete-actions">
+            <form method="POST" action="{{ url_for('deleteRecord', recording_id=recording._id) }}">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Confirm Delete
+                </button>
+                <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Optional: Add any page-specific JavaScript here
+    });
+</script>
+{% endblock %}

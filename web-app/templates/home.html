@@ -41,9 +41,9 @@
                         <p class="transcript-preview">
                             {{ doc.transcript[:150] }}{% if doc.transcript|length > 150 %}...{% endif %}
                         </p>
-                        <button class="btn-view-more" data-transcript="{{ doc.transcript }}">
+                        <a href="{{ url_for('summaryPage', post_id=doc._id) }}" class="btn-view-more">
                             View Full Transcript
-                        </button>
+                        </a>
                     </div>
                     {% endif %}
                     
@@ -72,20 +72,12 @@
     </div>
 </div>
 
-<!-- Modal for viewing full transcript -->
-<div id="transcriptModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>Full Transcript</h3>
-        <div id="fullTranscript"></div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // Modal functionality for full transcript
     document.addEventListener('DOMContentLoaded', function() {
+        // Modal functionality for full transcript
         const modal = document.getElementById("transcriptModal");
         const fullTranscript = document.getElementById("fullTranscript");
         const viewMoreButtons = document.querySelectorAll(".btn-view-more");
@@ -98,38 +90,8 @@
             });
         });
         
-        closeBtn.addEventListener("click", function() {
-            modal.style.display = "none";
-        });
-        
-        window.addEventListener("click", function(event) {
-            if (event.target === modal) {
+        if (closeBtn) {
+            closeBtn.addEventListener("click", function() {
                 modal.style.display = "none";
-            }
-        });
-        
-        // Horizontal scrolling navigation
-        const scrollLeftBtn = document.querySelector(".scroll-left");
-        const scrollRightBtn = document.querySelector(".scroll-right");
-        const recordingsContainer = document.querySelector(".recordings-container");
-        
-        if (scrollLeftBtn && scrollRightBtn && recordingsContainer) {
-            const scrollAmount = 400; // Amount to scroll on each click
-            
-            scrollLeftBtn.addEventListener("click", function() {
-                recordingsContainer.scrollBy({
-                    left: -scrollAmount,
-                    behavior: 'smooth'
-                });
-            });
-            
-            scrollRightBtn.addEventListener("click", function() {
-                recordingsContainer.scrollBy({
-                    left: scrollAmount,
-                    behavior: 'smooth'
-                });
             });
         }
-    });
-</script>
-{% endblock %}
