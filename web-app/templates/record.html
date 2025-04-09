@@ -34,7 +34,8 @@
         <!-- Step 1: Setup -->
         <div id="step-1" class="step active">
             <h3>Set Up Your Recording</h3>
-            <form id="recording-setup-form" method="POST" action="{{url_for('startRecord')}}">
+            <!-- Change in record.html -->
+            <form id="recording-setup-form" method="POST" action="{{url_for('start_record')}}">
                 <div class="form-group">
                     <label for="recording-title">Recording Title:</label>
                     <input type="text" id="recording-title" name="title" placeholder="Enter a descriptive title for your recording" required>
@@ -112,7 +113,7 @@
                 <a href="{{ url_for('home') }}" class="btn btn-secondary">
                     <i class="fas fa-home"></i> Back to Dashboard
                 </a>
-                <a href="{{ url_for('startRecord') }}" class="btn btn-primary">
+                <a href="{{ url_for('recordNew') }}" class="btn btn-primary">
                     <i class="fas fa-microphone"></i> Record Another
                 </a>
             </div>
