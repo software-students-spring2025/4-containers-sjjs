@@ -105,6 +105,14 @@ def create_app():
             return render_template("home.html", docs=docs, username=current_user.username)
         return render_template("home.html", docs=[], username=current_user.username)
 
+    @app.route("/onboard")
+    @login_required
+    def onboard():
+        """
+        Renders the onboarding page for new users.
+        """
+        return render_template("onboard.html", username=current_user.username)
+    
     @app.route("/login", methods=["GET", "POST"])
     def login():
         if request.method == "POST":
