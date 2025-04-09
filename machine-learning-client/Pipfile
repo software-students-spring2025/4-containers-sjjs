@@ -13,6 +13,7 @@ python-dotenv = "*"
 aiohttp = "*"
 pytest = "*"
 asyncio = "*"
+flask = "*"
 
 [dev-packages]
 pytest-cov = "*"

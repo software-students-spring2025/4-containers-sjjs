@@ -12,6 +12,7 @@ python-dotenv = "*"
 flask-login = "*"
 pytest = "*"
 pytest-flask = "*"
+requests = "*"
 
 [dev-packages]
 pytest-cov = "*"
