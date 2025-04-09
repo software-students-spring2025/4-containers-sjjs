@@ -3,7 +3,6 @@ File that houses python backend (Flask)
 """
 
 import os
-import voiceai
 import pymongo
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
@@ -19,6 +18,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo.server_api import ServerApi
 from pymongo.errors import ConnectionFailure, ConfigurationError
+import requests
 
 app = Flask(__name__)
 
@@ -188,9 +188,13 @@ def create_app():
 
     @app.route("/startRecord", methods=["POST"])
     @login_required
-    def startRecord():
+    def start_record():
         title = request.form.get('recording-title')
-        doc = voiceai.start_recording()
+        response = requests.post(
+            'http://voiceai:5001/startRecording',
+            timeout=50
+        )
+        doc = response.json().get("response", "Error")
         doc["title"] = title
         doc["user"] = current_user.username
         db = app.config["db"]
@@ -214,12 +218,15 @@ def create_app():
 
     @app.route("/stop-recording", methods=["POST"])
     def stop_recording():
-        voiceai.stop_recording = True
+        requests.post(
+            'http://voiceai:5001/stopRecording',
+            timeout=50
+        )
         print("Received stop signal from frontend.")
-        return jsonify({"status": "recording stopped"})
+        #return jsonify({"status": "recording stopped"})
+        return '', 204
 
     return app
 
 if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
