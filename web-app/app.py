@@ -3,6 +3,7 @@ File that houses python backend (Flask)
 """
 
 import os
+import datetime
 import pymongo
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
@@ -45,8 +46,6 @@ def connect_mongodb():
         cxn.admin.command("ping")
         print(" * Connected to MongoDB Atlas!")
 
-        # Create text index for search functionality
-        # db.messages.create_index([("workout_description", "text"), ("meal_name", "text")])
     except (ConnectionFailure, ConfigurationError) as e:
         print(" * MongoDB connection error:", e)
         db = None
@@ -95,13 +94,17 @@ def create_app():
     @app.route("/")
     @login_required
     def home():
-        """
-        Renders the 'home.html' template and shows a list of .
-        """
         db = app.config["db"]
         if db is not None:
+            # Query the speechSummary collection instead of messages
             query = {"user": current_user.username}
-            docs = db.messages.find(query)
+            # Sort by timestamp in descending order (newest first)
+            docs = list(db.speechSummary.find(query).sort("timestamp", -1))
+        
+            # Add this debug print
+            for doc in docs:
+                print(f"Home page document: {doc['_id']}, title: {doc.get('title')}")
+        
             return render_template("home.html", docs=docs, username=current_user.username)
         return render_template("home.html", docs=[], username=current_user.username)
 
@@ -175,12 +178,12 @@ def create_app():
         db = app.config["db"]
         if db is not None:
             try:
-                # Convert the recording_id to ObjectId
+                # Convert the recording_id back to ObjectId
                 result = db.speechSummary.delete_one({
                     "_id": ObjectId(recording_id), 
                     "user": current_user.username
                 })
-            
+        
                 if result.deleted_count == 1:
                     # Successfully deleted
                     flash("Recording deleted successfully.", "success")
@@ -190,7 +193,7 @@ def create_app():
             except Exception as e:
                 # Handle any potential errors (e.g., invalid ObjectId)
                 flash(f"An error occurred: {str(e)}", "error")
-    
+
         # Redirect back to home page
         return redirect(url_for("home"))
 
@@ -198,9 +201,11 @@ def create_app():
     @login_required
     def start_record():
         title = request.form.get('recording-title')
+        transcript = request.form.get('transcript', '')
         response = requests.post(
-            'http://voiceai:5001/startRecording',
-            timeout=50
+            'http://localhost:5001/summarize',
+            json={"transcript": transcript},
+            timeout=60
         )
         doc = response.json().get("response", "Error")
         doc["title"] = title
@@ -210,29 +215,114 @@ def create_app():
             db.speechSummary.insert_one(doc)
         return '', 204
 
-    @app.route("/summaryPage")
+    @app.route("/summaryPage/<post_id>")
     @login_required
-    def summary_page(post_id):
-        """
-        Renders summary page showing the summary of a specific meeting.
-        """
+    def summaryPage(post_id):
         db = app.config["db"]
         if db is not None:
-            docs = db.messages.find_one(
-                {"_id": ObjectId(post_id), "user": current_user.username}
-            )
-            return render_template("summary.html", docs=docs)
-        return render_template("summary.html", docs=[])
+            try:
+                # Detailed logging
+                print("Attempting to retrieve recording:")
+                print(f"post_id: {post_id}")
+                print(f"Current user: {current_user.username}")
+            
+                # Find the document
+                doc = db.speechSummary.find_one(
+                    {"_id": ObjectId(post_id), "user": current_user.username}
+                )
+            
+                # More detailed logging
+                if doc:
+                    # Convert ObjectId to string
+                    doc['_id'] = str(doc['_id'])
+                
+                    print("Document found:")
+                    print(f"Title: {doc.get('title')}")
+                    print(f"Transcript length: {len(doc.get('transcript', ''))}")
+                    print(f"Summary length: {len(doc.get('summary', ''))}")
+                else:
+                    print("No document found")
+            
+                if doc:
+                    return render_template("summary.html", doc=doc)
+                else:
+                    flash("Recording not found.", "error")
+                    return redirect(url_for("home"))
+        
+            except Exception as e:
+                print(f"Error retrieving recording: {str(e)}")
+                flash("Error retrieving recording details.", "error")
+                return redirect(url_for("home"))
+    
+        flash("Database connection unavailable.", "error")
+        return redirect(url_for("home"))
 
     @app.route("/stop-recording", methods=["POST"])
     def stop_recording():
         requests.post(
-            'http://voiceai:5001/stopRecording',
+            'http://localhost:5001/stopRecording',
             timeout=50
         )
         print("Received stop signal from frontend.")
-        #return jsonify({"status": "recording stopped"})
         return '', 204
+    
+    @app.route("/summarize-transcript", methods=["POST"])
+    @login_required
+    def summarize_transcript():
+        """
+        Receives a transcript from the frontend and sends it to the voiceai service for summarization.
+        """
+        title = request.form.get('title')
+        transcript = request.form.get('transcript')
+    
+        print(f"Transcript length: {len(transcript)} characters")
+    
+        try:
+            # Send transcript to voiceai service for summarization
+            print("Sending transcript to voiceai service...")
+            response = requests.post(
+                'http://localhost:5001/summarize',
+                json={
+                    "transcript": transcript
+                },
+                timeout=60
+            )
+        
+            # Print response status for debugging
+            print(f"Response status code: {response.status_code}")
+        
+            # Get response data
+            result = response.json()
+            print(f"Response from voiceai: {result}")
+        
+            summary = result.get("summary", "No summary available")
+        
+            # Store in database
+            db = app.config["db"]
+            if db is not None:
+                doc = {
+                    "title": title or "Voice Recording",
+                    "transcript": transcript,
+                    "summary": summary,
+                    "timestamp": datetime.datetime.now(datetime.UTC),
+                    "user": current_user.username
+                }
+                # Insert the document and get the inserted ID
+                inserted_id = db.speechSummary.insert_one(doc).inserted_id
+            
+                print(f"Recording saved to database with ID: {inserted_id}")
+            else:
+                print("Warning: Database connection not available")
+        
+            return jsonify({
+                "success": True,
+                "summary": summary,
+                "recording_id": str(inserted_id) if 'inserted_id' in locals() else None
+            })
+        
+        except Exception as e:
+            print(f"Error summarizing transcript: {str(e)}")
+            return jsonify({"error": str(e)}), 500
 
     return app
 
