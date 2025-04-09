@@ -19,7 +19,7 @@
                 {% if current_user.is_authenticated %}
                 <ul>
                     <li><a href="{{ url_for('home') }}">Home</a></li>
-                    <li><a href="{{ url_for('start_record') }}">Record</a></li>
+                    <li><a href="{{ url_for('recordNew') }}">Record</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 </ul>
                 {% else %}
