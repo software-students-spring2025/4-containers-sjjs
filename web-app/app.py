@@ -102,8 +102,8 @@ def create_app():
         if db is not None:
             query = {"user": current_user.username}
             docs = db.messages.find(query)
-            return render_template("home.html", docs=docs)
-        return render_template("home.html", docs=[])
+            return render_template("home.html", docs=docs, username=current_user.username)
+        return render_template("home.html", docs=[], username=current_user.username)
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
