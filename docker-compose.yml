@@ -16,6 +16,8 @@ services:
   ml-client:
     build: ../machine-learning-client
     container_name: ml-client
+    ports:
+      - "5001:5001"
     depends_on:
       - mongodb
     env_file:
@@ -25,7 +27,7 @@ services:
 
   # Web App
   web-app:
-    build: .
+    build: ../web-app
     container_name: web-app
     ports:
       - "5000:5000"

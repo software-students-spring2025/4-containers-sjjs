@@ -12,7 +12,9 @@ import aiohttp
 import pymongo
 import asyncio
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify
 
+app = Flask(__name__)
 
 load_dotenv()
 stop_recording = False
@@ -89,7 +91,9 @@ async def run_prompt(transcription):
     #return doc
 
 
-def start_recording(): 
+@app.route('/startRecording', methods=['POST'])
+def start_recording():
+    stop_recording = False
     transcription = voice_input()
     summary = asyncio.run(run_prompt(transcription))
     doc = {
@@ -97,7 +101,12 @@ def start_recording():
         "summary": summary,
         "timestamp": datetime.datetime.utcnow(),
     }
-    return doc
+    return jsonify({"response": doc})
+
+@app.route('/stopRecording', methods=['POST'])
+def stop_record():
+    stop_recording = True
+    return '', 204
 
 # This main block was for interactive testing:
 # """
@@ -114,3 +123,6 @@ def start_recording():
 #    print("Getting summary...")
 #    print(summary)
 # """
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001)
