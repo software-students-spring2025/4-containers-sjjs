@@ -14,7 +14,7 @@ services:
 
   # Machine Learning Client (assumes it's in a separate directory)
   ml-client:
-    build: ../machine-learning-client
+    build: ./machine-learning-client
     container_name: ml-client
     ports:
       - "5001:5001"
@@ -27,10 +27,10 @@ services:
 
   # Web App
   web-app:
-    build: ../web-app
+    build: ./web-app
     container_name: web-app
     ports:
-      - "5000:5000"
+      - "5002:5002"
     depends_on:
       - mongodb
       - ml-client
