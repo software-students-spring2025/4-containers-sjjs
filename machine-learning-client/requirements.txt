@@ -9,3 +9,5 @@ aiohttp
 pytest
 asyncio
 flask
+pyaudio
+pymongo

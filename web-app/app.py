@@ -207,6 +207,7 @@ def create_app():
         doc["user"] = current_user.username
         db = app.config["db"]
         if db is not None:
+            db.speechSummary.insert_one(title)
             db.speechSummary.insert_one(doc)
         return '', 204
 
