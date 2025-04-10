@@ -22,7 +22,6 @@ from pymongo.server_api import ServerApi
 from pymongo.errors import ConnectionFailure, ConfigurationError
 import requests
 
-app = Flask(__name__)
 
 
 def connect_mongodb():
@@ -54,7 +53,7 @@ def connect_mongodb():
     return db
 
 
-def render_home():
+def render_home(app):
     """
     Render home screen
     """
@@ -73,7 +72,7 @@ def render_home():
     return render_template("home.html", docs=[], username=current_user.username)
 
 
-def render_summary(post_id):
+def render_summary(post_id,app):
     """
     Create and render summary
     """
@@ -116,7 +115,7 @@ def render_summary(post_id):
     return redirect(url_for("home"))
 
 
-def render_delete(recording_id):
+def render_delete(recording_id,app):
     """
     Function for delete button
     """
@@ -145,7 +144,7 @@ def render_delete(recording_id):
     return redirect(url_for("home"))
 
 
-def render_summarize():
+def render_summarize(app):
     """
     Function for summarizing transcript
     """
@@ -209,6 +208,7 @@ def create_app():
     """
     Create Flask App
     """
+    app = Flask(__name__)
 
     app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
 
@@ -244,7 +244,7 @@ def create_app():
     @app.route("/")
     @login_required
     def home():
-        return render_home()
+        return render_home(app)
 
     @app.route("/onboard")
     @login_required
@@ -305,12 +305,12 @@ def create_app():
     @login_required
     def delete_record(recording_id):
         """Delete a recording"""
-        return render_delete(recording_id)
+        return render_delete(recording_id,app)
 
     @app.route("/summaryPage/<post_id>")
     @login_required
     def summary_page(post_id):
-        return render_summary(post_id)
+        return render_summary(post_id,app)
 
     @app.route("/summarize-transcript", methods=["POST"])
     @login_required
@@ -319,7 +319,7 @@ def create_app():
         Receives a transcript from the frontend and sends
         it to the voiceai service for summarization.
         """
-        return render_summarize()
+        return render_summarize(app)
 
     return app
 
