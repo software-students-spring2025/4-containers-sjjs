@@ -7,7 +7,7 @@
     <div class="welcome-section text-center mb-8">
         <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome, {{ username }}!</h2>
         <p class="text-gray-600 mb-6">Your personal speech summarization assistant</p>
-        <a href="{{ url_for('recordNew') }}" class="btn btn-primary bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+        <a href="{{ url_for('record_new') }}" class="btn btn-primary bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
             <i class="fas fa-microphone mr-2"></i>New Recording
         </a>
     </div>
@@ -40,14 +40,14 @@
                             <p class="text-gray-600 text-sm">
                                 {{ doc.get('transcript')[:150] }}{% if doc.get('transcript')|length > 150 %}...{% endif %}
                             </p>
-                            <a href="{{ url_for('summaryPage', post_id=doc['_id']) }}" class="btn-view-more text-blue-500 hover:text-blue-600 text-sm mt-2 inline-block">
+                            <a href="{{ url_for('summary_page', post_id=doc['_id']) }}" class="btn-view-more text-blue-500 hover:text-blue-600 text-sm mt-2 inline-block">
                                 View Full Summary and Transcript
                             </a>
                         </div>
                         {% endif %}
                         
                         <div class="recording-actions mt-4">
-                            <a href="{{ url_for('deleteRecord', recording_id=doc['_id']) }}" class="btn btn-danger bg-red-500 hover:bg-red-600 text-white text-sm py-1.5 px-3 rounded" onclick="return confirm('Are you sure you want to delete this recording?')">
+                            <a href="{{ url_for('delete_record', recording_id=doc['_id']) }}" class="btn btn-danger bg-red-500 hover:bg-red-600 text-white text-sm py-1.5 px-3 rounded" onclick="return confirm('Are you sure you want to delete this recording?')">
                                 <i class="fas fa-trash mr-1"></i>Delete
                             </a>
                         </div>
@@ -58,7 +58,7 @@
         {% else %}
             <div class="no-recordings text-center py-12 bg-gray-50 rounded-lg">
                 <p class="text-gray-600 mb-4">You don't have any recordings yet.</p>
-                <a href="{{ url_for('recordNew') }}" class="btn btn-secondary bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
+                <a href="{{ url_for('record_new') }}" class="btn btn-secondary bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
                     Start Recording
                 </a>
             </div>
