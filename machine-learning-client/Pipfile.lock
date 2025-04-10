@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ff31ccd980d323b2e56d46d1a84b4433bbc2a30aa81da63ad766833eb391cfc3"
+            "sha256": "64cee15ad01be74a544c00b36b26aa402643196f12d9801924bef8d2d2b03650"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -1048,15 +1048,6 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==1.3.1"
-        },
-        "speechrecognition": {
-            "hashes": [
-                "sha256:2daa467f0b5686017ff3f9a64dcfa1a789ee10d1b0ada3be74bfad10eaef5f49",
-                "sha256:42940b95295b358fdd7415daa01260c8b20025d6b4000fbbaa3458f005d912b7"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.9'",
-            "version": "==3.14.2"
         },
         "tomli": {
             "hashes": [
