@@ -91,6 +91,7 @@ async def run_prompt(transcription):
     #return doc
 
 
+"""
 @app.route('/startRecording', methods=['POST'])
 def start_recording():
     stop_recording = False
@@ -107,6 +108,15 @@ def start_recording():
 def stop_record():
     stop_recording = True
     return '', 204
+"""
+
+@app.route('/summarize', methods=['POST'])
+def summarize():
+    data = request.get_json()
+    transcript = data.get('transcript') if data else ''
+    summary = asyncio.run(run_prompt(transcript)) if data else ''
+    return jsonify({'summary': summary})
+
 
 # This main block was for interactive testing:
 # """

@@ -20,6 +20,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo.server_api import ServerApi
 from pymongo.errors import ConnectionFailure, ConfigurationError
 import requests
+import traceback
 
 app = Flask(__name__)
 
@@ -197,13 +198,14 @@ def create_app():
         # Redirect back to home page
         return redirect(url_for("home"))
 
-    @app.route("/startRecord", methods=["POST"])
+    @app.route("/start_record", methods=["POST"])
     @login_required
     def start_record():
+        """
         title = request.form.get('recording-title')
         transcript = request.form.get('transcript', '')
         response = requests.post(
-            'http://localhost:5001/summarize',
+            'http://web-app:5002/summarize',
             json={"transcript": transcript},
             timeout=60
         )
@@ -214,6 +216,7 @@ def create_app():
         if db is not None:
             db.speechSummary.insert_one(title)
             db.speechSummary.insert_one(doc)
+        """
         return '', 204
 
     @app.route("/summaryPage/<post_id>")
@@ -260,11 +263,13 @@ def create_app():
 
     @app.route("/stop-recording", methods=["POST"])
     def stop_recording():
+        """
         requests.post(
-            'http://localhost:5001/stopRecording',
+            'http://ml-client:5001/stopRecording',
             timeout=50
         )
         print("Received stop signal from frontend.")
+        """
         return '', 204
     
     @app.route("/summarize-transcript", methods=["POST"])
@@ -282,7 +287,7 @@ def create_app():
             # Send transcript to voiceai service for summarization
             print("Sending transcript to voiceai service...")
             response = requests.post(
-                'http://localhost:5001/summarize',
+                'http://ml-client:5001/summarize',
                 json={
                     "transcript": transcript
                 },
@@ -293,10 +298,12 @@ def create_app():
             print(f"Response status code: {response.status_code}")
         
             # Get response data
-            result = response.json()
-            print(f"Response from voiceai: {result}")
-        
-            summary = result.get("summary", "No summary available")
+            try:
+                result = response.json()
+                summary = result.get("summary", "No summary available")
+            except ValueError:
+                print("ML service did not return valid JSON:", response.text)
+                summary = "Invalid response from summarization service."
         
             # Store in database
             db = app.config["db"]
@@ -305,7 +312,7 @@ def create_app():
                     "title": title or "Voice Recording",
                     "transcript": transcript,
                     "summary": summary,
-                    "timestamp": datetime.datetime.now(datetime.UTC),
+                    "timestamp": datetime.datetime.now(datetime.timezone.utc),
                     "user": current_user.username
                 }
                 # Insert the document and get the inserted ID
@@ -323,6 +330,7 @@ def create_app():
         
         except Exception as e:
             print(f"Error summarizing transcript: {str(e)}")
+            traceback.print_exc()
             return jsonify({"error": str(e)}), 500
 
     return app

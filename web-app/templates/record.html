@@ -233,6 +233,7 @@
                         recognition.start();
                     }
                     
+                    /*
                     // Tell backend recording has started
                     fetch('/start_record', {
                         method: 'POST',
@@ -248,7 +249,7 @@
                     })
                     .catch(error => {
                         console.error('Error starting recording on backend:', error);
-                    });
+                    }); */
                     
                     // Move to recording step
                     goToStep(2);
