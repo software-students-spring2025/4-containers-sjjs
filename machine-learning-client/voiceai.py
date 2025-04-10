@@ -82,34 +82,6 @@ async def run_prompt(transcription):
     return await gpt_call(transcription, context)
 
 
-#def save_to_db(transcription, summary):
- #   doc = {
-  #      "transcript": transcription,
-   #     "summary": summary,
-    #    "timestamp": datetime.datetime.utcnow(),
-    #}
-    #return doc
-
-
-"""
-@app.route('/startRecording', methods=['POST'])
-def start_recording():
-    stop_recording = False
-    transcription = voice_input()
-    summary = asyncio.run(run_prompt(transcription))
-    doc = {
-        "transcript": transcription,
-        "summary": summary,
-        "timestamp": datetime.datetime.utcnow(),
-    }
-    return jsonify({"response": doc})
-
-@app.route('/stopRecording', methods=['POST'])
-def stop_record():
-    stop_recording = True
-    return '', 204
-"""
-
 @app.route('/summarize', methods=['POST'])
 def summarize():
     data = request.get_json()

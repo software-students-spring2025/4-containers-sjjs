@@ -198,27 +198,6 @@ def create_app():
         # Redirect back to home page
         return redirect(url_for("home"))
 
-    @app.route("/start_record", methods=["POST"])
-    @login_required
-    def start_record():
-        """
-        title = request.form.get('recording-title')
-        transcript = request.form.get('transcript', '')
-        response = requests.post(
-            'http://web-app:5002/summarize',
-            json={"transcript": transcript},
-            timeout=60
-        )
-        doc = response.json().get("response", "Error")
-        doc["title"] = title
-        doc["user"] = current_user.username
-        db = app.config["db"]
-        if db is not None:
-            db.speechSummary.insert_one(title)
-            db.speechSummary.insert_one(doc)
-        """
-        return '', 204
-
     @app.route("/summaryPage/<post_id>")
     @login_required
     def summaryPage(post_id):
@@ -260,17 +239,6 @@ def create_app():
     
         flash("Database connection unavailable.", "error")
         return redirect(url_for("home"))
-
-    @app.route("/stop-recording", methods=["POST"])
-    def stop_recording():
-        """
-        requests.post(
-            'http://ml-client:5001/stopRecording',
-            timeout=50
-        )
-        print("Received stop signal from frontend.")
-        """
-        return '', 204
     
     @app.route("/summarize-transcript", methods=["POST"])
     @login_required

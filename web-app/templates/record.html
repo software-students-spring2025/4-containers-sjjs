@@ -34,7 +34,7 @@
         <!-- Step 1: Setup -->
         <div id="step-1" class="step active">
             <h3>Set Up Your Recording</h3>
-            <form id="recording-setup-form" method="POST" action="{{ url_for('start_record') }}">
+            <form id="recording-setup-form" method="POST">
                 <div class="form-group">
                     <label for="recording-title">Recording Title:</label>
                     <input type="text" id="recording-title" name="recording-title" placeholder="Enter a descriptive title for your recording" required>
@@ -232,24 +232,6 @@
                     if (recognition) {
                         recognition.start();
                     }
-                    
-                    /*
-                    // Tell backend recording has started
-                    fetch('/start_record', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
-                            'recording-title': recordingTitle.value
-                        })
-                    })
-                    .then(response => {
-                        console.log('Recording started on backend');
-                    })
-                    .catch(error => {
-                        console.error('Error starting recording on backend:', error);
-                    }); */
                     
                     // Move to recording step
                     goToStep(2);
