@@ -20,7 +20,7 @@
         </div>
         
         <div class="delete-actions">
-            <form method="POST" action="{{ url_for('deleteRecord', recording_id=recording._id) }}">
+            <form method="POST" action="{{ url_for('delete_record', recording_id=recording._id) }}">
                 <button type="submit" class="btn btn-danger">
                     <i class="fas fa-trash"></i> Confirm Delete
                 </button>
