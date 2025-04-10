@@ -57,17 +57,12 @@ def test_mongodb_connection_failure():
 
 def test_home_route_authorized(client, mock_db, app):
     """Test home route with authentication."""
-    #Login
-    
     test_user_id = ObjectId()
     
-    # Setup the mock database for the app
     app.config["db"] = mock_db
     
-    # Use actual password hash for proper validation
     hashed_password = generate_password_hash('testpass')
     
-    # Mock the user lookup that happens during login
     mock_db.users.find_one.return_value = {
         '_id': test_user_id,
         'username': 'testuser',
@@ -81,14 +76,12 @@ def test_home_route_authorized(client, mock_db, app):
     })
             
             
-    # Verify redirect happened
     assert login_response.status_code == 302, "Login did not redirect"
     assert login_response.location.endswith('/'), "Did not redirect to home page"
 
     with client.session_transaction() as session:
         session['_user_id'] = str(test_user_id)
             
-            # Mock speechSummary collection for the home page
     mock_db.speechSummary.find.return_value.sort.return_value = [{
         '_id': ObjectId(),
         'title': 'Test Recording',
@@ -98,21 +91,16 @@ def test_home_route_authorized(client, mock_db, app):
         'timestamp': datetime.datetime.utcnow()
     }]
             
-    # Access home page
     response = client.get('/')
-    
-    # Verify home page loaded
     assert response.status_code == 200, "Home page access failed"
     
-    # Verify the database was queried with the correct parameters
+    
     mock_db.speechSummary.find.assert_called_once()
     call_args = mock_db.speechSummary.find.call_args[0][0]
     assert call_args == {"user": "testuser"}, "Database query had incorrect parameters"
     
-    # Verify sort was called
+
     mock_db.speechSummary.find.return_value.sort.assert_called_once()
-    
-    # Verify home page content
     response_text = response.data.decode('utf-8')
     assert "Test Recording" in response_text, "Recording title not found in response"
     assert "Test summary" in response_text, "Summary not found in response"
