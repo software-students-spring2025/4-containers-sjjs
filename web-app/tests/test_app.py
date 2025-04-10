@@ -1,4 +1,6 @@
 import pytest
+import os 
+import sys
 from unittest.mock import patch, MagicMock
 from bson import ObjectId
 from werkzeug.security import generate_password_hash
