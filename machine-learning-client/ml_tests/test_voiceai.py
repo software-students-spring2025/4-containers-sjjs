@@ -5,8 +5,8 @@ import os
 from unittest.mock import patch, AsyncMock
 import asyncio
 import pytest
-import voiceai
 from aiohttp import ClientResponseError
+import voiceai # pylint: disable= import-error
 
 # Add the parent directory to sys.path to enable importing voiceai.py
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
