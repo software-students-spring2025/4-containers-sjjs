@@ -68,7 +68,10 @@ async def gpt_call(text, prompt):
             },
         ) as response:
             data = await response.json()
-            return data["choices"][0]["message"]["content"]
+            try:
+                return data["choices"][0]["message"]["content"]
+            except (KeyError, IndexError, TypeError) as e:
+                raise KeyError("Unexpected response format from OpenAI") from e
 
 
 async def run_prompt(transcription):
@@ -82,29 +85,13 @@ async def run_prompt(transcription):
     return await gpt_call(transcription, context)
 
 
-@app.route('/summarize', methods=['POST'])
+@app.route("/summarize", methods=["POST"])
 def summarize():
     data = request.get_json()
-    transcript = data.get('transcript') if data else ''
-    summary = asyncio.run(run_prompt(transcript)) if data else ''
-    return jsonify({'summary': summary})
+    transcript = data.get("transcript") if data else ""
+    summary = asyncio.run(run_prompt(transcript)) if data else ""
+    return jsonify({"summary": summary})
 
 
-# This main block was for interactive testing:
-# """
-# if __name__ == "__main__":
-#    print("Recording...")
-#    transcription = voice_input()
-#
-#    print("Getting transcription...")
-#    print(transcription)
-#
-#    print("Calling OpenAI...")
-#    summary = asyncio.run(run_prompt(transcription))
-#
-#    print("Getting summary...")
-#    print(summary)
-# """
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5001)
