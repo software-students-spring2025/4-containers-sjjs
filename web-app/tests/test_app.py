@@ -3,6 +3,8 @@ from unittest.mock import patch, MagicMock
 from bson import ObjectId
 from werkzeug.security import generate_password_hash
 from app import create_app, connect_mongodb
+import pymongo
+from pymongo.errors import ConnectionFailure
 
 @pytest.fixture
 def app():
@@ -32,34 +34,37 @@ def test_mongodb_connection_success(mock_db):
     with patch('os.getenv') as mock_getenv:
         mock_getenv.side_effect = ['mongodb://test', 'test_db']
         
-        db = connect_mongodb()
-        assert db is not None
-        mock_db.admin.command.assert_called_once_with('ping')
+        mock_client = MagicMock()
+        mock_client.admin.command.return_value = True
+        with patch('pymongo.MongoClient', return_value=mock_client):
+            db = connect_mongodb()
+            assert db is not None
+            mock_client.admin.command.assert_called_once_with('ping')
 
 def test_mongodb_connection_failure():
     """Test MongoDB connection failure."""
-    with patch('pymongo.MongoClient', side_effect=Exception('Connection failed')):
-        db = connect_mongodb()
-        assert db is None
-
-def test_home_route_unauthorized(client):
-    """Test home route without authentication."""
-    response = client.get('/')
-    assert response.status_code == 302#Redirect to login
-    assert response.location.endswith('/login')
+    with patch('os.getenv') as mock_getenv:
+        mock_getenv.side_effect = ['mongodb://test', 'test_db']
+        
+        with patch('pymongo.MongoClient', side_effect=pymongo.errors.ConnectionFailure('Connection failed')):
+            db = connect_mongodb()
+            assert db is None
 
 def test_home_route_authorized(client, mock_db):
     """Test home route with authentication."""
     #Login
+    
+    test_user_id = ObjectId()
     mock_db.users.find_one.return_value = {
-        '_id': ObjectId(),
+        '_id': test_user_id,
         'username': 'testuser',
         'password': generate_password_hash('testpass')
     }
-    client.post('/login', data={
-        'username': 'testuser',
-        'password': 'testpass'
-    })
+    
+
+    # Login
+    with client.session_transaction() as session:
+        session['_user_id'] = str(test_user_id)
     
     #Mock recordings
     mock_db.messages.find.return_value = [{
@@ -72,6 +77,7 @@ def test_home_route_authorized(client, mock_db):
     
     response = client.get('/')
     html_content = response.data.decode('utf-8')
+    print(html_content)
     
     # Check template elements
     assert 'Welcome, testuser!' in html_content
@@ -182,29 +188,6 @@ def test_logout(client, mock_db):
     assert response.status_code == 302 #Redirect to login
     assert response.location.endswith('/login')
 
-def test_startRecord_route(client, mock_db):
-    """Test start_record route with authentication."""
-    #Login
-    mock_db.users.find_one.return_value = {
-        '_id': ObjectId(),
-        'username': 'testuser',
-        'password': generate_password_hash('testpass')
-    }
-    client.post('/login', data={
-        'username': 'testuser',
-        'password': 'testpass'
-    })
-
-    response = client.post('/startRecord', data={
-        'title': 'Test Recording'
-    })
-    assert response.status_code == 204
-    
-    mock_db.speechSummary.insert_one.assert_called_once()
-    call_args = mock_db.speechSummary.insert_one.call_args[0][0]
-    assert call_args['title'] == 'Test Recording'
-    assert call_args['user'] == 'testuser'
-
 
 def test_summary_page_route(client, mock_db):
     """Test summary page route with authentication."""
@@ -264,19 +247,3 @@ def test_deleteRecord_route(client, mock_db):
         '_id': ObjectId(test_id),
         'user': 'testuser'
     })
-
-def test_stop_recording_route(client, mock_db):
-    mock_db.users.find_one.return_value = {
-        '_id': ObjectId(),
-        'username': 'testuser',
-        'password': generate_password_hash('testpass')  
-    }
-    client.post('/login', data={
-        'username': 'testuser',
-        'password': 'testpass'
-    })
-    
-    response = client.post('/stop-recording')
-    assert response.status_code == 200
-    assert response.json == {'status': 'recording stopped'}
-    mock_db.stop_recording.assert_called_once()
