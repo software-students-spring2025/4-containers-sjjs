@@ -79,7 +79,7 @@ async def run_prompt(transcription):
     context = (
         "You are an expert summarizer. Take this given text and summarize it in as much detail "
         "as possible. Please include 3–4 key sections in this summary. Include the summary, and "
-        "the summary only, as part of your outputted text. : {text}"
+        "the summary only, as part of your outputted text. If the transcription is only one line, please respond with 'The transcript is too short to analyze': {text}"
     )
 
     return await gpt_call(transcription, context)
