@@ -5,8 +5,8 @@ import os
 from unittest.mock import patch, AsyncMock
 import asyncio
 import pytest
-import voiceai
 from aiohttp import ClientResponseError
+import voiceai  # pylint: disable= import-error
 
 # Add the parent directory to sys.path to enable importing voiceai.py
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -71,7 +71,7 @@ def test_gpt_call_raises_http_error(mock_post):
 
 @patch("voiceai.gpt_call", new_callable=AsyncMock)
 def test_run_prompt_returns_string(mock_gpt_call):
-    """ Test gpt_call to see if it returns a string"""
+    """Test gpt_call to see if it returns a string"""
     mock_gpt_call.return_value = "This is a test."
     result = asyncio.run(voiceai.run_prompt("hello"))
     assert isinstance(result, str)
