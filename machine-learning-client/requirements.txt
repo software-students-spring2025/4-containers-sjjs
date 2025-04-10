@@ -3,7 +3,6 @@ pylint
 black
 openai
 fpdf
-speechrecognition
 python-dotenv
 aiohttp
 pytest

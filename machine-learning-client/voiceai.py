@@ -5,52 +5,18 @@ and stores the result in a MongoDB database.
 """
 
 import os
-import datetime
-import openai
-import speech_recognition as sr
-import aiohttp
-import pymongo
 import asyncio
+import openai
+import aiohttp
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
 load_dotenv()
-stop_recording = False
 
 api_key = os.getenv("api_key")  # Make sure this is set in .env
 openai.api_key = api_key
-
-
-def voice_input():
-    """Captures speech input from the microphone until 'end' + returns transcription."""
-    global stop_recording
-    stop_recording = False
-    transcription = ""  # Initialize empty string
-    recognizer = sr.Recognizer()
-
-    with sr.Microphone() as source:
-        print("Speak (say 'end' to stop)...")
-        recognizer.adjust_for_ambient_noise(source)
-        while True:
-            if stop_recording:
-                print("Recording stopped by frontend.")
-                break
-            try:
-                audio = recognizer.listen(source)
-                text = recognizer.recognize_google(audio)
-                print(f"You said: {text}")
-                transcription += text + "\n"
-            except sr.UnknownValueError:
-                print("Could not understand.")
-            except sr.RequestError as e:
-                print(f"Speech API error: {e}")
-            except KeyboardInterrupt:
-                print("Stopped by user.")
-                break
-
-    return transcription
 
 
 async def gpt_call(text, prompt):
@@ -87,6 +53,9 @@ async def run_prompt(transcription):
 
 @app.route("/summarize", methods=["POST"])
 def summarize():
+    """
+    Summarize incoming transcripts
+    """
     data = request.get_json()
     transcript = data.get("transcript") if data else ""
     summary = asyncio.run(run_prompt(transcript)) if data else ""
