@@ -5,7 +5,7 @@ import pytest
 from bson import ObjectId
 from werkzeug.security import generate_password_hash
 import pymongo
-from app import create_app, connect_mongodb # pylint: disable=import-error
+from app import create_app, connect_mongodb  # pylint: disable=import-error
 
 
 @pytest.fixture(name="app")
@@ -190,10 +190,7 @@ def test_onboard_route_authorized(client, mock_db):
 
     response = client.get("/onboard")
     assert response.status_code == 200
-    assert (
-        b"Let's get you started with creating your first recording."
-        in response.data
-    )
+    assert b"Let's get you started with creating your first recording." in response.data
 
 
 def test_logout(client, mock_db):
