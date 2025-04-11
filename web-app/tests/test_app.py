@@ -4,12 +4,12 @@ import datetime
 import pytest
 from bson import ObjectId
 from werkzeug.security import generate_password_hash
-from app import create_app, connect_mongodb
 import pymongo
+from app import create_app, connect_mongodb  # pylint: disable=import-error
 
 
-@pytest.fixture
-def app(mock_db):
+@pytest.fixture(name="app")
+def fixture_app(mock_db):
     """Create and configure a new app instance for each test."""
     with patch("app.connect_mongodb", return_value=mock_db):
         app = create_app()
@@ -23,14 +23,14 @@ def app(mock_db):
     return app
 
 
-@pytest.fixture
-def client(app):
+@pytest.fixture(name="client")
+def fixture_client(app):
     """A test client for the app."""
     return app.test_client()
 
 
-@pytest.fixture
-def mock_db():
+@pytest.fixture(name="mock_db")
+def fixture_mock_db():
     """Mock MongoDB connection and database."""
     with patch("pymongo.MongoClient") as mock_client:
         mock_db = MagicMock()
@@ -38,7 +38,7 @@ def mock_db():
         yield mock_db
 
 
-def test_mongodb_connection_success(mock_db):
+def test_mongodb_connection_success():
     """Test successful MongoDB connection."""
     with patch("os.getenv") as mock_getenv:
         mock_getenv.side_effect = ["mongodb://test", "test_db"]
@@ -190,10 +190,7 @@ def test_onboard_route_authorized(client, mock_db):
 
     response = client.get("/onboard")
     assert response.status_code == 200
-    assert (
-        b"Thank you for joining our platform. Let's get you started with creating your first recording."
-        in response.data
-    )
+    assert b"Let's get you started with creating your first recording." in response.data
 
 
 def test_logout(client, mock_db):
@@ -240,7 +237,7 @@ def test_summary_page_route(client, mock_db):
     assert "Test transcript" in html
 
 
-def test_deleteRecord_route(client, mock_db):
+def test_delete_record_route(client, mock_db):
     """Test delete_record route"""
     # Login
     mock_db.users.find_one.return_value = {

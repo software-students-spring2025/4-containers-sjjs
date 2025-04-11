@@ -23,7 +23,6 @@ from pymongo.errors import ConnectionFailure, ConfigurationError
 import requests
 
 
-
 def connect_mongodb():
     """
     Connect to the mongodb atlas database
@@ -72,7 +71,7 @@ def render_home(app):
     return render_template("home.html", docs=[], username=current_user.username)
 
 
-def render_summary(post_id,app):
+def render_summary(post_id, app):
     """
     Create and render summary
     """
@@ -115,7 +114,7 @@ def render_summary(post_id,app):
     return redirect(url_for("home"))
 
 
-def render_delete(recording_id,app):
+def render_delete(recording_id, app):
     """
     Function for delete button
     """
@@ -305,12 +304,12 @@ def create_app():
     @login_required
     def delete_record(recording_id):
         """Delete a recording"""
-        return render_delete(recording_id,app)
+        return render_delete(recording_id, app)
 
     @app.route("/summaryPage/<post_id>")
     @login_required
     def summary_page(post_id):
-        return render_summary(post_id,app)
+        return render_summary(post_id, app)
 
     @app.route("/summarize-transcript", methods=["POST"])
     @login_required
