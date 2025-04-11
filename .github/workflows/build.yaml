@@ -7,16 +7,13 @@ on:
   pull_request:
 
 jobs:
-  build-and-test: 
+  build-web-app:
+    name: Build Web App
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        subdir: [web-app, machine-learning-client]
 
     defaults:
       run:
-        working-directory: ${{ matrix.subdir }}
+        working-directory: web-app
 
     steps:
       - name: Checkout code
@@ -28,16 +25,49 @@ jobs:
           python-version: "3.10"
 
       - name: Install pipenv
-        run: |
-          pip install pipenv
+        run: pip install pipenv
 
       - name: Install dependencies
-        run: |
-          pipenv sync --dev
+        run: pipenv sync --dev
 
       - name: Run tests with Pytest
         run: pipenv run pytest --cov=. --cov-report=term-missing
-      
+
+      - name: Enforce 80% test coverage
+        run: |
+          COVERAGE=$(pipenv run coverage report | grep TOTAL | awk '{print $4}' | sed 's/%//')
+          echo "Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Test coverage is below 80%" >&2
+            exit 1
+          fi
+
+  build-ml-client:
+    name: Build ML Client
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: machine-learning-client
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Install dependencies
+        run: pipenv sync --dev
+
+      - name: Run tests with Pytest
+        run: pipenv run pytest --cov=. --cov-report=term-missing
+
       - name: Enforce 80% test coverage
         run: |
           COVERAGE=$(pipenv run coverage report | grep TOTAL | awk '{print $4}' | sed 's/%//')
