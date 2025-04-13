@@ -32,6 +32,7 @@ cd 4-containers-sjjs
 ```
 MONGO_URI="your_mongodb_connection_string"
 MONGO_DBNAME="speechSummary"
+api_key=OPEN_AI_API_KEY
 SECRET_KEY="your_secret_key_here"
 FLASK_APP=app.py
 FLASK_ENV=development
@@ -56,6 +57,7 @@ The following environment variables are required for the application to function
 - `MONGO_URI`: MongoDB connection string
 - `MONGO_DBNAME`: Name of the MongoDB database
 - `SECRET_KEY`: Flask secret key for session management
+- `api_key`: Open AI API key for function calling
 - `FLASK_APP`: Name of the Flask application file
 - `FLASK_ENV`: Flask environment (development/production)
 - `FLASK_PORT`: Port number for the Flask application
