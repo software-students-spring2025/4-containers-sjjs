@@ -43,10 +43,7 @@ FLASK_PORT=5002
 docker-compose up --build
 ```
 
-The application will be available at:
-- Web App: http://localhost:5002
-- ML Client: http://localhost:5001
-- MongoDB: localhost:27017
+The application will be available at http://localhost:5002/ where you can interact with the web app. 
 
 ### Database Setup
 
